@@ -1,57 +1,150 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sidequest Solo</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+:root {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --accent: #38bdf8;
+    --easy: #22c55e;
+    --medium: #eab308;
+    --hard: #ef4444;
+    --text: #f1f5f9;
+}
 
-<div id="app">
-    <section id="screen-howto" class="screen active">
-        <div class="glass-card">
-            <h1>🕵️‍♂️ Sidequest</h1>
-            <p>Erfülle Aufgaben im echten Leben, ohne dass es jemand merkt.</p>
-            <div class="reward-list">
-                <div class="reward-item"><span>🟢 Leicht</span> <span>+5 Pkt</span></div>
-                <div class="reward-item"><span>🟡 Mittel</span> <span>+10 Pkt</span></div>
-                <div class="reward-item"><span>🔴 Schwer</span> <span>+20 Pkt</span></div>
-            </div>
-            <p class="hint">Rechts klicken: Erledigt ✅<br>Links klicken: Neue Karte (-2 Pkt) ❌</p>
-            <button class="btn-primary" onclick="startGame()">Starten</button>
-        </div>
-    </section>
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
 
-    <section id="screen-game" class="screen">
-        <div class="header">
-            <div class="score-badge">Punkte: <span id="display-score">0</span></div>
-        </div>
-        
-        <div id="card-container"></div>
+#app {
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    position: relative;
+}
 
-        <div class="footer">
-            <button class="btn-danger" onclick="endGameRequest()">Spiel beenden</button>
-        </div>
-    </section>
+.screen {
+    display: none;
+    padding: 20px;
+    height: 100%;
+    flex-direction: column;
+    box-sizing: border-box;
+}
 
-    <section id="screen-review" class="screen">
-        <h2>Review ⚖️</h2>
-        <p>Tippe auf Aufgaben, die du doch nicht geschafft hast:</p>
-        <div id="review-list"></div>
-        <button class="btn-primary" onclick="showFinalResult()">Punkte bestätigen</button>
-    </section>
+.screen.active { display: flex; }
 
-    <section id="screen-result" class="screen">
-        <div class="glass-card">
-            <h2>Endergebnis</h2>
-            <div id="final-score-display" class="final-score">0</div>
-            <p>Punkte erreicht!</p>
-            <button class="btn-primary" onclick="location.reload()">Neustart</button>
-        </div>
-    </section>
-</div>
+.glass-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 24px;
+    text-align: center;
+    margin-top: 50px;
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+/* Gameplay Elements */
+.header { display: flex; justify-content: center; margin-bottom: 30px; }
+.score-badge {
+    background: var(--card-bg);
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--accent);
+    font-weight: bold;
+    color: var(--accent);
+}
+
+#card-container {
+    position: relative;
+    flex-grow: 1;
+    perspective: 1000px;
+}
+
+.card {
+    position: absolute;
+    width: 100%;
+    height: 380px;
+    background: var(--card-bg);
+    border-radius: 28px;
+    padding: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    border: 4px solid #475569;
+    transition: transform 0.4s ease, opacity 0.3s;
+    cursor: pointer;
+}
+
+.card.easy { border-color: var(--easy); }
+.card.medium { border-color: var(--medium); }
+.card.hard { border-color: var(--hard); }
+
+.card-text { font-size: 1.4rem; font-weight: 600; line-height: 1.4; }
+
+.card-ui {
+    position: absolute;
+    bottom: 25px;
+    width: 85%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    font-weight: bold;
+    opacity: 0.6;
+}
+
+/* Stack Effect */
+.card:nth-child(1) { z-index: 5; transform: translateY(0); }
+.card:nth-child(2) { z-index: 4; transform: translateY(15px) scale(0.95); opacity: 0.7; }
+.card:nth-child(3) { z-index: 3; transform: translateY(30px) scale(0.90); opacity: 0.4; }
+
+/* Buttons */
+.btn-primary, .btn-danger {
+    padding: 16px 24px;
+    border-radius: 16px;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-primary { background: var(--accent); color: #000; }
+.btn-danger { background: #334155; color: var(--text); }
+
+/* Review List */
+#review-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.review-item {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--accent);
+}
+
+.review-item.removed {
+    opacity: 0.3;
+    text-decoration: line-through;
+}
+
+.final-score {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin: 20px 0;
+}
+
