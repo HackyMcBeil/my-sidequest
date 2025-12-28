@@ -18,10 +18,65 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 4. Spiel-Variablen
-let gameId = "room123"; 
+// 4. Spiel-Variablen & Raum-Logik
+const urlParams = new URLSearchParams(window.location.search);
+let gameId = urlParams.get('room'); 
+
+// Falls kein Raum in der URL ist, erstelle einen neuen Code
+if (!gameId) {
+    gameId = Math.random().toString(36).substring(2, 8);
+}
+
 let myPlayerKey = "";
 let currentScore = 0;
+
+// LINK KOPIEREN FUNKTION
+window.copyRoomLink = function() {
+    const roomLink = window.location.origin + window.location.pathname + "?room=" + gameId;
+    navigator.clipboard.writeText(roomLink).then(() => {
+        alert("Link kopiert! Schicke ihn deinen Freunden.");
+    });
+};
+
+// CHALLENGES DATENBANK (Stelle sicher, dass alle Kategorien existieren!)
+const CHALLENGES = {
+    easy: [
+        "Berühre unauffällig dreimal dein linkes Ohr.",
+        "Sage in einem Satz das Wort 'Gurkensalat'.",
+        "Trinke dein Glas in einem Zug leer."
+        // ... hier deine restlichen 100 leichten Aufgaben
+    ],
+    medium: [
+        "Laufe einmal grundlos im Kreis.",
+        "Summe ein Lied für 10 Sekunden."
+        // ... hier deine 100 mittleren Aufgaben
+    ],
+    hard: [
+        "Mache 5 Liegestütze.",
+        "Sprich 2 Minuten mit Akzent."
+        // ... hier deine 100 schweren Aufgaben
+    ]
+};
+
+let gameState = { cards: [] };
+
+// Diese Funktion muss angepasst werden, damit der Link in der Lobby erscheint
+window.onload = function() {
+    const lobbyStatus = document.getElementById('lobby-status');
+    if (lobbyStatus) {
+        const linkBox = document.createElement('div');
+        linkBox.style = "background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 15px;";
+        linkBox.innerHTML = `
+            <small>Raum-Code: <strong>${gameId}</strong></small><br>
+            <button onclick="copyRoomLink()" style="font-size: 0.8em; padding: 5px 10px;">🔗 Link kopieren</button>
+        `;
+        lobbyStatus.prepend(linkBox);
+    }
+
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-howto').classList.add('active');
+};
+
 
 // CHALLENGES DATENBANK
 const CHALLENGES = {
