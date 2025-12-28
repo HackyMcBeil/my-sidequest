@@ -490,3 +490,68 @@ window.startVetoPhase = function() {
 window.castVeto = function(pKey, cKey) {
     set(ref(db, `games/${gameId}/players/${pKey}/challengesDone/${cKey}/vetos/${myPlayerKey}`), true);
 };
+
+window.showFinalResult = function() {
+    const finalLeaderboard = document.getElementById('final-leaderboard');
+    const winnerBanner = document.getElementById('winner-banner');
+    const gameRef = ref(db, `games/${gameId}/players`);
+
+    onValue(gameRef, (snapshot) => {
+        const players = snapshot.val();
+        let results = [];
+        let totalPlayers = Object.keys(players).length;
+
+        for (let pKey in players) {
+            let player = players[pKey];
+            let adjustedScore = 0;
+            let invalidCount = 0;
+
+            // Jede erledigte Challenge prüfen
+            if (player.challengesDone) {
+                Object.values(player.challengesDone).forEach(c => {
+                    let vetoCount = c.vetos ? Object.keys(c.vetos).length : 0;
+                    
+                    // VETO-REGEL: Wenn mehr als 50% der ANDEREN Spieler Veto rufen
+                    // (Wir rechnen hier mit 50% der Gesamtspieler als Richtwert)
+                    if (vetoCount >= (totalPlayers / 2)) {
+                        invalidCount++;
+                    } else {
+                        // Punkte nur addieren, wenn kein Veto erfolgreich war
+                        let pts = c.type === 'easy' ? 5 : (c.type === 'medium' ? 10 : 20);
+                        adjustedScore += pts;
+                    }
+                });
+            }
+
+            // Minuspunkte für gelöschte Karten (optional, falls getrackt)
+            // Hier nutzen wir der Einfachheit halber den bereinigten Score
+            results.push({ 
+                name: player.name, 
+                score: adjustedScore, 
+                invalid: invalidCount 
+            });
+        }
+
+        // Sortieren nach Score (höchster zuerst)
+        results.sort((a, b) => b.score - a.score);
+
+        // Anzeige bauen
+        finalLeaderboard.innerHTML = "";
+        results.forEach((res, index) => {
+            const div = document.createElement('div');
+            div.className = "final-rank-item";
+            div.innerHTML = `
+                <span>${index + 1}. ${res.name} ${index === 0 ? '👑' : ''}</span>
+                <span>${res.score} Pkt. <small>(${res.invalid} Vetos)</small></span>
+            `;
+            finalLeaderboard.appendChild(div);
+        });
+
+        // Gewinner-Banner & Wetteinsatz
+        const bet = document.getElementById('bet-input').value || "Ehre";
+        winnerBanner.innerText = `${results[0].name} gewinnt: ${bet}!`;
+    }, { onlyOnce: true });
+
+    document.getElementById('screen-veto').classList.remove('active');
+    document.getElementById('screen-final').classList.add('active');
+};
