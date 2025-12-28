@@ -1,3 +1,22 @@
+:root {
+    --easy: #2ecc71;
+    --medium: #f1c40f;
+    --hard: #e74c3c;
+    --dark: #2c3e50;
+}
+
+body {
+    font-family: sans-serif;
+    background: #f0f0f0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.screen { display: none; width: 100%; max-width: 400px; padding: 20px; }
+.screen.active { display: block; }
+
+
 #card-container {
     position: relative;
     height: 350px; /* Höhe des Stapels */
