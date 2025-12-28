@@ -81,3 +81,13 @@ button {
     background: var(--hard);
     font-size: 0.8em;
 }
+
+.howto-content {
+    text-align: left;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.howto-content ul { padding-left: 20px; }
