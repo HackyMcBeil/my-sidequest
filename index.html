@@ -50,10 +50,18 @@
         </section>
 
         <section id="screen-veto" class="screen">
-            <h2>Veto-Runde ⚖️</h2>
-            <div id="veto-list"></div>
-            <button onclick="finishVeto()">Veto-Phase abschließen</button>
-        </section>
+    <h2>Veto-Runde ⚖️</h2>
+    <div id="veto-list"></div>
+    <input type="hidden" id="bet-input" value="Runde Pizza"> 
+    <button onclick="showFinalResult()">Endergebnis anzeigen</button>
+</section>
+
+<section id="screen-final" class="screen">
+    <h1 id="winner-banner"></h1>
+    <div id="final-leaderboard"></div>
+    <button onclick="location.reload()">Neustart</button>
+</section>
+        
     </div>
 
     <script type="module" src="app.js"></script>
