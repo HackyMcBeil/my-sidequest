@@ -1,93 +1,59 @@
-:root {
-    --easy: #2ecc71;
-    --medium: #f1c40f;
-    --hard: #e74c3c;
-    --dark: #2c3e50;
-}
-
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f4f7f6;
-    margin: 0;
+/* Ergänzungen für die finale Übersicht & Eingaben */
+.input-group {
     display: flex;
-    justify-content: center;
-    touch-action: manipulation;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-#app {
-    width: 100%;
-    max-width: 500px;
-    height: 100vh;
+input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+#screen-final {
+    text-align: center;
+}
+
+#winner-banner {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--dark);
+    margin: 20px 0;
     padding: 20px;
-    box-sizing: border-box;
+    background: gold;
+    border-radius: 12px;
 }
 
-.screen { display: none; }
-.screen.active { display: flex; flex-direction: column; }
-
-.card {
+#final-leaderboard {
     background: white;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 10px 0;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    position: relative;
-    border-left: 10px solid gray;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: left;
 }
 
-.card.easy { border-color: var(--easy); }
-.card.medium { border-color: var(--medium); }
-.card.hard { border-color: var(--hard); }
-
-.card-actions {
+.final-rank-item {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
 }
 
-button {
-    padding: 10px 20px;
-    border-radius: 8px;
-    border: none;
-    background: var(--dark);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+#final-bet-info {
+    font-style: italic;
+    margin: 20px 0;
+    color: #666;
 }
 
-.btn-done { background: var(--easy); }
-.btn-skip { background: #95a5a6; }
-.hidden { display: none; }
-
-#display-score { font-weight: bold; color: var(--dark); }
-
-#veto-list h3 {
-    margin-top: 25px;
-    border-bottom: 2px solid var(--dark);
-}
-
-.veto-item {
-    background: #fff;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 8px;
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
-.veto-item button {
-    background: var(--hard);
-    font-size: 0.8em;
-}
-
-.howto-content {
-    text-align: left;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-.howto-content ul { padding-left: 20px; }
