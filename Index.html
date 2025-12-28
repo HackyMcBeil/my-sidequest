@@ -3,30 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Sidequest</title>
+    <title>Sidequest Solo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="app">
     <section id="screen-howto" class="screen active">
-        <h1>🕵️‍♂️ Sidequest</h1>
-        <div class="rules">
-            <p><strong>Ziel:</strong> Erfülle Quests, ohne aufzufallen!</p>
-            <p>🟢 5 Pkt | 🟡 10 Pkt | 🔴 20 Pkt</p>
-            <hr>
-            <p>👉 <strong>Klicke RECHTS:</strong> Aufgabe geschafft ✅</p>
-            <p>👈 <strong>Klicke LINKS:</strong> Karte löschen (-2 Pkt) ❌</p>
+        <div class="glass-card">
+            <h1>🕵️‍♂️ Sidequest</h1>
+            <p>Erfülle Aufgaben im echten Leben, ohne dass es jemand merkt.</p>
+            <div class="reward-list">
+                <div class="reward-item"><span>🟢 Leicht</span> <span>+5 Pkt</span></div>
+                <div class="reward-item"><span>🟡 Mittel</span> <span>+10 Pkt</span></div>
+                <div class="reward-item"><span>🔴 Schwer</span> <span>+20 Pkt</span></div>
+            </div>
+            <p class="hint">Rechts klicken: Erledigt ✅<br>Links klicken: Neue Karte (-2 Pkt) ❌</p>
+            <button class="btn-primary" onclick="startGame()">Starten</button>
         </div>
-        <button onclick="startGame()">Ich bin bereit!</button>
     </section>
 
     <section id="screen-game" class="screen">
         <div class="header">
-            <span>Punkte: <span id="display-score">0</span></span>
-            <button onclick="location.reload()" class="btn-reset">Reset</button>
+            <div class="score-badge">Punkte: <span id="display-score">0</span></div>
         </div>
+        
         <div id="card-container"></div>
+
+        <div class="footer">
+            <button class="btn-danger" onclick="endGameRequest()">Spiel beenden</button>
+        </div>
+    </section>
+
+    <section id="screen-review" class="screen">
+        <h2>Review ⚖️</h2>
+        <p>Tippe auf Aufgaben, die du doch nicht geschafft hast:</p>
+        <div id="review-list"></div>
+        <button class="btn-primary" onclick="showFinalResult()">Punkte bestätigen</button>
+    </section>
+
+    <section id="screen-result" class="screen">
+        <div class="glass-card">
+            <h2>Endergebnis</h2>
+            <div id="final-score-display" class="final-score">0</div>
+            <p>Punkte erreicht!</p>
+            <button class="btn-primary" onclick="location.reload()">Neustart</button>
+        </div>
     </section>
 </div>
 
