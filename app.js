@@ -388,17 +388,42 @@ function generateInitialCards() {
 function renderCards() {
     const container = document.getElementById('card-container');
     container.innerHTML = "";
+    
+    // Wir zeigen immer die 6 Karten des Stapels
     gameState.cards.forEach((card, index) => {
         const div = document.createElement('div');
         div.className = `card ${card.type}`;
+        
+        // Punkte berechnen für die Anzeige
+        const plusPts = card.type === 'easy' ? '+5' : (card.type === 'medium' ? '+10' : '+20');
+        const minusPts = '-2';
+
         div.innerHTML = `
-            <small>${card.type.toUpperCase()}</small>
-            <p>${card.text}</p>
-            <div class="card-actions">
-                <button class="btn-skip" onclick="swipe(${index}, false)">Löschen (-2)</button>
-                <button class="btn-done" onclick="swipe(${index}, true)">Erledigt!</button>
+            <div class="card-text">${card.text}</div>
+            <div class="card-ui">
+                <div class="ui-element">
+                    <span class="symbol-x">✕</span>
+                    <span class="points-label">${minusPts}</span>
+                </div>
+                <div class="ui-element">
+                    <span class="symbol-check">✓</span>
+                    <span class="points-label">${plusPts}</span>
+                </div>
             </div>
         `;
+
+        // Swipe-Logik via Klick (für den Prototyp einfacher als Touch-Gesten)
+        div.onclick = (e) => {
+            // Wenn man links klickt = löschen, rechts = erledigt
+            const rect = div.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width / 2) {
+                swipe(index, false); // Links
+            } else {
+                swipe(index, true); // Rechts
+            }
+        };
+
         container.appendChild(div);
     });
 }
