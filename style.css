@@ -60,3 +60,24 @@ button {
 .hidden { display: none; }
 
 #display-score { font-weight: bold; color: var(--dark); }
+
+#veto-list h3 {
+    margin-top: 25px;
+    border-bottom: 2px solid var(--dark);
+}
+
+.veto-item {
+    background: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.veto-item button {
+    background: var(--hard);
+    font-size: 0.8em;
+}
