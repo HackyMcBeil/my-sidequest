@@ -138,3 +138,13 @@ window.castVeto = function(playerKey, challengeKey) {
     const vetoRef = ref(db, `games/${gameId}/players/${playerKey}/challengesDone/${challengeKey}/vetos/${myPlayerKey}`);
     set(vetoRef, true); // Markiert, dass du ein Veto gegeben hast
 };
+
+.howto-content {
+    text-align: left;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.howto-content ul { padding-left: 20px; }
