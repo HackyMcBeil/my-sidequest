@@ -1,135 +1,57 @@
-:root {
-    --easy: #2ecc71;
-    --medium: #f1c40f;
-    --hard: #e74c3c;
-    --dark: #2c3e50;
-    --bg: #f4f7f6;
-}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sidequest Solo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: var(--bg);
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-}
+<div id="app">
+    <section id="screen-howto" class="screen active">
+        <div class="glass-card">
+            <h1>🕵️‍♂️ Sidequest</h1>
+            <p>Erfülle Aufgaben im echten Leben, ohne dass es jemand merkt.</p>
+            <div class="reward-list">
+                <div class="reward-item"><span>🟢 Leicht</span> <span>+5 Pkt</span></div>
+                <div class="reward-item"><span>🟡 Mittel</span> <span>+10 Pkt</span></div>
+                <div class="reward-item"><span>🔴 Schwer</span> <span>+20 Pkt</span></div>
+            </div>
+            <p class="hint">Rechts klicken: Erledigt ✅<br>Links klicken: Neue Karte (-2 Pkt) ❌</p>
+            <button class="btn-primary" onclick="startGame()">Starten</button>
+        </div>
+    </section>
 
-#app {
-    width: 100%;
-    max-width: 500px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
+    <section id="screen-game" class="screen">
+        <div class="header">
+            <div class="score-badge">Punkte: <span id="display-score">0</span></div>
+        </div>
+        
+        <div id="card-container"></div>
 
-.screen {
-    display: none;
-    flex-direction: column;
-    padding: 20px;
-    height: 100%;
-    box-sizing: border-box;
-}
+        <div class="footer">
+            <button class="btn-danger" onclick="endGameRequest()">Spiel beenden</button>
+        </div>
+    </section>
 
-.screen.active {
-    display: flex;
-}
+    <section id="screen-review" class="screen">
+        <h2>Review ⚖️</h2>
+        <p>Tippe auf Aufgaben, die du doch nicht geschafft hast:</p>
+        <div id="review-list"></div>
+        <button class="btn-primary" onclick="showFinalResult()">Punkte bestätigen</button>
+    </section>
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
+    <section id="screen-result" class="screen">
+        <div class="glass-card">
+            <h2>Endergebnis</h2>
+            <div id="final-score-display" class="final-score">0</div>
+            <p>Punkte erreicht!</p>
+            <button class="btn-primary" onclick="location.reload()">Neustart</button>
+        </div>
+    </section>
+</div>
 
-#display-score {
-    font-weight: bold;
-    font-size: 1.4rem;
-    color: var(--dark);
-}
-
-#card-container {
-    position: relative;
-    flex-grow: 1;
-    perspective: 1000px;
-    margin-top: 20px;
-}
-
-.card {
-    position: absolute;
-    width: 100%;
-    height: 350px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 30px;
-    box-sizing: border-box;
-    transition: transform 0.4s ease, opacity 0.3s;
-    border: 8px solid #ccc;
-    cursor: pointer;
-    user-select: none;
-}
-
-.card.easy { border-color: var(--easy); }
-.card.medium { border-color: var(--medium); }
-.card.hard { border-color: var(--hard); }
-
-.card-text {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--dark);
-}
-
-.card-ui {
-    position: absolute;
-    bottom: 20px;
-    width: 85%;
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-}
-
-.ui-left { color: var(--hard); }
-.ui-right { color: var(--easy); }
-
-/* Stapel-Positionen */
-.card:nth-child(1) { z-index: 5; transform: translateY(0); opacity: 1; }
-.card:nth-child(2) { z-index: 4; transform: translateY(15px) scale(0.95); opacity: 0.8; }
-.card:nth-child(3) { z-index: 3; transform: translateY(30px) scale(0.90); opacity: 0.6; }
-
-button {
-    background: var(--dark);
-    color: white;
-    border: none;
-    padding: 18px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
-.btn-reset {
-    padding: 5px 10px;
-    background: #95a5a6;
-    font-size: 0.7rem;
-}
-
-.rules {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
+<script src="script.js"></script>
+</body>
+</html>
