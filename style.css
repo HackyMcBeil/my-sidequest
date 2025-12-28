@@ -1,6 +1,4 @@
-body {
-    background-color: red !important;
-}
+<style>
 #card-container {
     position: relative;
     height: 350px; /* Höhe des Stapels */
@@ -61,3 +59,4 @@ body {
 .card:nth-child(3) { transform: translateZ(-20px) translateY(8px); opacity: 0.8; }
 .card:nth-child(2) { transform: translateZ(-10px) translateY(4px); opacity: 0.9; }
 .card:nth-child(1) { transform: translateZ(0) translateY(0); opacity: 1; z-index: 10; }
+</style>
