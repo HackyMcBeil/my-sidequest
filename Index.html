@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Sidequest</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+    <section id="screen-howto" class="screen active">
+        <h1>🕵️‍♂️ Sidequest</h1>
+        <div class="rules">
+            <p><strong>Ziel:</strong> Erfülle Quests, ohne aufzufallen!</p>
+            <p>🟢 5 Pkt | 🟡 10 Pkt | 🔴 20 Pkt</p>
+            <hr>
+            <p>👉 <strong>Klicke RECHTS:</strong> Aufgabe geschafft ✅</p>
+            <p>👈 <strong>Klicke LINKS:</strong> Karte löschen (-2 Pkt) ❌</p>
+        </div>
+        <button onclick="startGame()">Ich bin bereit!</button>
+    </section>
+
+    <section id="screen-game" class="screen">
+        <div class="header">
+            <span>Punkte: <span id="display-score">0</span></span>
+            <button onclick="location.reload()" class="btn-reset">Reset</button>
+        </div>
+        <div id="card-container"></div>
+    </section>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
