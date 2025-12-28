@@ -95,3 +95,46 @@ window.swipe = function(index, success) {
     gameState.cards[index].text = getRand(card.type);
     renderCards();
 };
+
+// Funktion: Wechselt in den Veto-Modus
+window.startVetoPhase = function() {
+    const vetoList = document.getElementById('veto-list');
+    const gameRef = ref(db, `games/${gameId}/players`);
+    
+    // Alle Spieler und ihre erledigten Challenges laden
+    onValue(gameRef, (snapshot) => {
+        const players = snapshot.val();
+        vetoList.innerHTML = ""; // Reset
+        
+        for (let pKey in players) {
+            const player = players[pKey];
+            if (player.challengesDone) {
+                const section = document.createElement('div');
+                section.innerHTML = `<h3>${player.name} hat erledigt:</h3>`;
+                
+                Object.keys(player.challengesDone).forEach(cKey => {
+                    const challenge = player.challengesDone[cKey];
+                    const vetoCount = challenge.vetos ? Object.keys(challenge.vetos).length : 0;
+                    
+                    const item = document.createElement('div');
+                    item.className = "veto-item";
+                    item.innerHTML = `
+                        <p>${challenge.text} (Vetos: ${vetoCount})</p>
+                        <button onclick="castVeto('${pKey}', '${cKey}')">Veto einlegen!</button>
+                    `;
+                    section.appendChild(item);
+                });
+                vetoList.appendChild(section);
+            }
+        }
+    });
+
+    document.getElementById('screen-game').classList.remove('active');
+    document.getElementById('screen-veto').classList.add('active');
+};
+
+// Funktion: Ein Veto für eine bestimmte Challenge abgeben
+window.castVeto = function(playerKey, challengeKey) {
+    const vetoRef = ref(db, `games/${gameId}/players/${playerKey}/challengesDone/${challengeKey}/vetos/${myPlayerKey}`);
+    set(vetoRef, true); // Markiert, dass du ein Veto gegeben hast
+};
