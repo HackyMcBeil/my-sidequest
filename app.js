@@ -1,11 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// 1. Firebase SDKs importieren
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// 2. Deine Konfiguration (URL ist bereits drin)
 const firebaseConfig = {
   apiKey: "AIzaSyC4xxMq4__FZbbWm1hD7af21GBnWB4PRVE",
   authDomain: "database-51873.firebaseapp.com",
@@ -17,17 +14,64 @@ const firebaseConfig = {
   measurementId: "G-EQ9GTVBNJJ"
 };
 
-// Initialize Firebase
+// 3. Firebase initialisieren
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getDatabase(app);
 
-let gameId = "room123"; // Für den Prototyp fest, später dynamisch per URL
+// 4. Spiel-Variablen
+let gameId = "room123"; 
 let myPlayerKey = "";
 let currentScore = 0;
 
-// Beim Laden der Seite prüfen, ob ein Link genutzt wurde
+// CHALLENGES DATENBANK
+const CHALLENGES = {
+    easy: [
+        "Berühre unauffällig dreimal dein linkes Ohr.",
+        "Sage in einem Satz das Wort 'Gurkensalat'.",
+        "Trinke dein Glas in einem Zug leer.",
+        "Stelle eine belanglose Frage über das Wetter.",
+        "Gähne einmal laut und deutlich.",
+        "Rücke deinen Stuhl zwei Mal hintereinander zurecht.",
+        "Putze deine Brille (oder reibe dir die Augen).",
+        "Schau kurz auf dein Handy und kichere leise.",
+        "Streichle dir nachdenklich über das Kinn.",
+        "Verändere deine Sitzposition sehr auffällig."
+    ],
+    medium: [
+        "Laufe einmal grundlos im Kreis durch den Raum.",
+        "Tausche mit jemandem (unauffällig) den Platz.",
+        "Flüstere eine Nachricht an deinen Nachbarn.",
+        "Lache laut über einen Witz, der nicht lustig war.",
+        "Benutze das Wort 'fabelhaft' in einem Satz.",
+        "Behaupte, du hättest eine Spinne gesehen.",
+        "Frage nach der Uhrzeit, trotz Handy in der Hand.",
+        "Summe für 10 Sekunden ein bekanntes Lied.",
+        "Trinke aus dem Glas einer anderen Person.",
+        "Wiederhole das letzte Wort des Vorredners als Frage."
+    ],
+    hard: [
+        "Zieh ein Kleidungsstück falsch herum an.",
+        "Behaupte, du hättest ein Klopfen an der Tür gehört.",
+        "Mache 5 Liegestütze mitten im Raum.",
+        "Verlange, dass alle kurz aufstehen und sich setzen.",
+        "Sprich für 2 Minuten mit einem Akzent.",
+        "Halte eine 30-sekündige Rede über Wasser.",
+        "Setz dich für eine Minute auf den Boden.",
+        "Tu so, als hättest du extremen Schluckauf.",
+        "Gib jemandem ein übertriebenes High-Five.",
+        "Behaupte, ein bekanntes Gesicht im Fenster zu sehen."
+    ]
+};
+
+let gameState = { cards: [] };
+
+// HILFSFUNKTIONEN
+function getRand(lvl) {
+    const list = CHALLENGES[lvl];
+    return list[Math.floor(Math.random() * list.length)];
+}
+
 window.onload = function() {
-    // Zeige zuerst die Erklärung
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-howto').classList.add('active');
 };
@@ -37,7 +81,7 @@ window.closeHowTo = function() {
     document.getElementById('screen-lobby').classList.add('active');
 };
 
-// 1. SPIEL BEITRETEN
+// 5. SPIEL-LOGIK
 window.joinGame = function() {
     const name = document.getElementById('username').value;
     if(!name) return alert("Name fehlt!");
@@ -48,99 +92,106 @@ window.joinGame = function() {
 
     set(newPlayerRef, {
         name: name,
-        score: 0,
-        challengesDone: []
+        score: 0
     });
 
     document.getElementById('display-name').innerText = name;
     listenToGame();
     
-    // Wechsel zum Spiel-Screen
     document.getElementById('screen-lobby').classList.remove('active');
     document.getElementById('screen-game').classList.add('active');
     generateInitialCards();
 };
 
-// 2. ECHTZEIT-UPDATES (Leaderboard & Status)
-function listenToGame() {
-    const gameRef = ref(db, `games/${gameId}`);
-    onValue(gameRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
+function generateInitialCards() {
+    gameState.cards = [
+        { id: 1, type: 'easy', text: getRand('easy') },
+        { id: 2, type: 'easy', text: getRand('easy') },
+        { id: 3, type: 'medium', text: getRand('medium') },
+        { id: 4, type: 'medium', text: getRand('medium') },
+        { id: 5, type: 'hard', text: getRand('hard') },
+        { id: 6, type: 'hard', text: getRand('hard') }
+    ];
+    renderCards();
+}
 
-        // Leaderboard aktualisieren
+function renderCards() {
+    const container = document.getElementById('card-container');
+    container.innerHTML = "";
+    gameState.cards.forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = `card ${card.type}`;
+        div.innerHTML = `
+            <small>${card.type.toUpperCase()}</small>
+            <p>${card.text}</p>
+            <div class="card-actions">
+                <button class="btn-skip" onclick="swipe(${index}, false)">Löschen (-2)</button>
+                <button class="btn-done" onclick="swipe(${index}, true)">Erledigt!</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+window.swipe = function(index, success) {
+    const card = gameState.cards[index];
+    let pts = 0;
+    if(success) {
+        pts = card.type === 'easy' ? 5 : (card.type === 'medium' ? 10 : 20);
+        const doneRef = ref(db, `games/${gameId}/players/${myPlayerKey}/challengesDone`);
+        push(doneRef, { text: card.text, type: card.type });
+    } else {
+        pts = -2;
+    }
+    currentScore += pts;
+    update(ref(db, `games/${gameId}/players/${myPlayerKey}`), { score: currentScore });
+    document.getElementById('display-score').innerText = currentScore + " Pkt.";
+    gameState.cards[index].text = getRand(card.type);
+    renderCards();
+};
+
+function listenToGame() {
+    onValue(ref(db, `games/${gameId}/players`), (snapshot) => {
+        const players = snapshot.val();
         const list = document.getElementById('player-list');
+        if(!list) return;
         list.innerHTML = "";
-        for (let key in data.players) {
-            const p = data.players[key];
+        for (let key in players) {
             const li = document.createElement('li');
-            li.innerText = `${p.name}: ${p.score} Pkt.`;
+            li.innerText = `${players[key].name}: ${players[key].score} Pkt.`;
             list.appendChild(li);
         }
     });
 }
 
-// 3. PUNKTE BEI SWIPE AKTUALISIEREN
-window.swipe = function(index, success) {
-    const card = gameState.cards[index];
-    let pointsChange = 0;
-    
-    if(success) {
-        pointsChange = card.type === 'easy' ? 5 : (card.type === 'medium' ? 10 : 20);
-        // Challenge in Firebase speichern für Veto-Check später
-        const doneRef = ref(db, `games/${gameId}/players/${myPlayerKey}/challengesDone`);
-        push(doneRef, { text: card.text, timestamp: Date.now() });
-    } else {
-        pointsChange = -2;
-    }
-    
-    currentScore += pointsChange;
-    
-    // Score in Firebase synchronisieren
-    update(ref(db, `games/${gameId}/players/${myPlayerKey}`), {
-        score: currentScore
-    });
-
-    document.getElementById('display-score').innerText = currentScore + " Pkt.";
-    
-    // Neue Karte nachrücken
-    gameState.cards[index].text = getRand(card.type);
-    renderCards();
-};
-
-// Funktion: Wechselt in den Veto-Modus
+// VETO LOGIK
 window.startVetoPhase = function() {
     const vetoList = document.getElementById('veto-list');
-    const gameRef = ref(db, `games/${gameId}/players`);
-    
-    // Alle Spieler und ihre erledigten Challenges laden
-    onValue(gameRef, (snapshot) => {
+    onValue(ref(db, `games/${gameId}/players`), (snapshot) => {
         const players = snapshot.val();
-        vetoList.innerHTML = ""; // Reset
-        
+        vetoList.innerHTML = "";
         for (let pKey in players) {
             const player = players[pKey];
             if (player.challengesDone) {
-                const section = document.createElement('div');
-                section.innerHTML = `<h3>${player.name} hat erledigt:</h3>`;
-                
+                const sec = document.createElement('div');
+                sec.innerHTML = `<h3>${player.name}</h3>`;
                 Object.keys(player.challengesDone).forEach(cKey => {
-                    const challenge = player.challengesDone[cKey];
-                    const vetoCount = challenge.vetos ? Object.keys(challenge.vetos).length : 0;
-                    
+                    const c = player.challengesDone[cKey];
+                    const vCount = c.vetos ? Object.keys(c.vetos).length : 0;
                     const item = document.createElement('div');
                     item.className = "veto-item";
-                    item.innerHTML = `
-                        <p>${challenge.text} (Vetos: ${vetoCount})</p>
-                        <button onclick="castVeto('${pKey}', '${cKey}')">Veto einlegen!</button>
-                    `;
-                    section.appendChild(item);
+                    item.innerHTML = `<p>${c.text} (${vCount} Vetos)</p>
+                        <button onclick="castVeto('${pKey}', '${cKey}')">Veto!</button>`;
+                    sec.appendChild(item);
                 });
-                vetoList.appendChild(section);
+                vetoList.appendChild(sec);
             }
         }
     });
-
     document.getElementById('screen-game').classList.remove('active');
     document.getElementById('screen-veto').classList.add('active');
+};
+
+window.castVeto = function(pKey, cKey) {
+    set(ref(db, `games/${gameId}/players/${pKey}/challengesDone/${cKey}/vetos/${myPlayerKey}`), true);
 };
