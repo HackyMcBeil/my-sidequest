@@ -1,97 +1,91 @@
-// Beispiel-Datenbank der Challenges
-const CHALLENGES = {
-    easy: [
-        "Berühre dreimal dein linkes Ohr.",
-        "Sage in einem Satz das Wort 'Gurkensalat'.",
-        "Trinke dein Glas in einem Zug leer.",
-        "Stelle eine Frage über das Wetter."
-    ],
-    medium: [
-        "Laufe einmal grundlos im Kreis.",
-        "Tausche mit jemandem (unauffällig) den Platz.",
-        "Flüstere eine Nachricht an deinen Nachbarn.",
-        "Lache laut über einen Witz, der nicht lustig war."
-    ],
-    hard: [
-        "Zieh ein Kleidungsstück falsch herum an.",
-        "Behaupte, du hättest gerade ein Klopfen an der Tür gehört.",
-        "Mache 5 Liegestütze mitten im Raum.",
-        "Verlange, dass alle kurz aufstehen und sich setzen."
-    ]
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+// DEINE FIREBASE KONFIGURATION HIER EINFÜGEN
+const firebaseConfig = {
+  apiKey: "DEIN_API_KEY",
+  authDomain: "DEIN_PROJEKT.firebaseapp.com",
+  databaseURL: "https://DEIN_PROJEKT-default-rtdb.firebaseio.com",
+  projectId: "DEIN_PROJEKT",
+  storageBucket: "DEIN_PROJEKT.appspot.com",
+  messagingSenderId: "ID",
+  appId: "APP_ID"
 };
 
-let gameState = {
-    user: { name: "", score: 0, done: [] },
-    cards: []
-};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-// Initialisierung: 2 Leicht, 2 Mittel, 2 Schwer
-function generateInitialCards() {
-    gameState.cards = [
-        { id: 1, type: 'easy', text: getRand('easy') },
-        { id: 2, type: 'easy', text: getRand('easy') },
-        { id: 3, type: 'medium', text: getRand('medium') },
-        { id: 4, type: 'medium', text: getRand('medium') },
-        { id: 5, type: 'hard', text: getRand('hard') },
-        { id: 6, type: 'hard', text: getRand('hard') }
-    ];
-    renderCards();
-}
+let gameId = "room123"; // Für den Prototyp fest, später dynamisch per URL
+let myPlayerKey = "";
+let currentScore = 0;
 
-function getRand(lvl) {
-    const list = CHALLENGES[lvl];
-    return list[Math.floor(Math.random() * list.length)];
-}
-
-function renderCards() {
-    const container = document.getElementById('card-container');
-    container.innerHTML = "";
-    
-    gameState.cards.forEach((card, index) => {
-        const div = document.createElement('div');
-        div.className = `card ${card.type}`;
-        div.innerHTML = `
-            <small>${card.type.toUpperCase()}</small>
-            <p>${card.text}</p>
-            <div class="card-actions">
-                <button class="btn-skip" onclick="swipe(${index}, false)">Löschen (-2)</button>
-                <button class="btn-done" onclick="swipe(${index}, true)">Erledigt!</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-window.swipe = function(index, success) {
-    const card = gameState.cards[index];
-    if(success) {
-        let pts = card.type === 'easy' ? 5 : (card.type === 'medium' ? 10 : 20);
-        gameState.user.score += pts;
-        gameState.user.done.push(card.text);
-    } else {
-        gameState.user.score -= 2;
-    }
-    
-    // Neue Karte nachrücken
-    gameState.cards[index].text = getRand(card.type);
-    
-    document.getElementById('display-score').innerText = gameState.user.score + " Pkt.";
-    renderCards();
-};
-
+// 1. SPIEL BEITRETEN
 window.joinGame = function() {
     const name = document.getElementById('username').value;
     if(!name) return alert("Name fehlt!");
-    gameState.user.name = name;
+
+    const playerRef = ref(db, `games/${gameId}/players`);
+    const newPlayerRef = push(playerRef);
+    myPlayerKey = newPlayerRef.key;
+
+    set(newPlayerRef, {
+        name: name,
+        score: 0,
+        challengesDone: []
+    });
+
     document.getElementById('display-name').innerText = name;
+    listenToGame();
     
-    // Wechsel zum Spiel (In echter App erst nach Host-Start)
+    // Wechsel zum Spiel-Screen
     document.getElementById('screen-lobby').classList.remove('active');
     document.getElementById('screen-game').classList.add('active');
     generateInitialCards();
 };
 
-window.requestEnd = function() {
-    alert("Beenden-Anfrage gesendet (Warte auf 50% der Spieler...)");
-    // Hier würde der Firebase-Trigger stehen
+// 2. ECHTZEIT-UPDATES (Leaderboard & Status)
+function listenToGame() {
+    const gameRef = ref(db, `games/${gameId}`);
+    onValue(gameRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        // Leaderboard aktualisieren
+        const list = document.getElementById('player-list');
+        list.innerHTML = "";
+        for (let key in data.players) {
+            const p = data.players[key];
+            const li = document.createElement('li');
+            li.innerText = `${p.name}: ${p.score} Pkt.`;
+            list.appendChild(li);
+        }
+    });
+}
+
+// 3. PUNKTE BEI SWIPE AKTUALISIEREN
+window.swipe = function(index, success) {
+    const card = gameState.cards[index];
+    let pointsChange = 0;
+    
+    if(success) {
+        pointsChange = card.type === 'easy' ? 5 : (card.type === 'medium' ? 10 : 20);
+        // Challenge in Firebase speichern für Veto-Check später
+        const doneRef = ref(db, `games/${gameId}/players/${myPlayerKey}/challengesDone`);
+        push(doneRef, { text: card.text, timestamp: Date.now() });
+    } else {
+        pointsChange = -2;
+    }
+    
+    currentScore += pointsChange;
+    
+    // Score in Firebase synchronisieren
+    update(ref(db, `games/${gameId}/players/${myPlayerKey}`), {
+        score: currentScore
+    });
+
+    document.getElementById('display-score').innerText = currentScore + " Pkt.";
+    
+    // Neue Karte nachrücken
+    gameState.cards[index].text = getRand(card.type);
+    renderCards();
 };
