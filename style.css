@@ -1,3 +1,6 @@
+body {
+    background-color: red !important;
+}
 #card-container {
     position: relative;
     height: 350px; /* Höhe des Stapels */
