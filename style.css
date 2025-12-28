@@ -1,0 +1,62 @@
+:root {
+    --easy: #2ecc71;
+    --medium: #f1c40f;
+    --hard: #e74c3c;
+    --dark: #2c3e50;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f7f6;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+#app {
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; }
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    border-left: 10px solid gray;
+}
+
+.card.easy { border-color: var(--easy); }
+.card.medium { border-color: var(--medium); }
+.card.hard { border-color: var(--hard); }
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--dark);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-done { background: var(--easy); }
+.btn-skip { background: #95a5a6; }
+.hidden { display: none; }
+
+#display-score { font-weight: bold; color: var(--dark); }
