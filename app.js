@@ -25,6 +25,18 @@ let gameId = "room123"; // Für den Prototyp fest, später dynamisch per URL
 let myPlayerKey = "";
 let currentScore = 0;
 
+// Beim Laden der Seite prüfen, ob ein Link genutzt wurde
+window.onload = function() {
+    // Zeige zuerst die Erklärung
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-howto').classList.add('active');
+};
+
+window.closeHowTo = function() {
+    document.getElementById('screen-howto').classList.remove('active');
+    document.getElementById('screen-lobby').classList.add('active');
+};
+
 // 1. SPIEL BEITRETEN
 window.joinGame = function() {
     const name = document.getElementById('username').value;
@@ -132,19 +144,3 @@ window.startVetoPhase = function() {
     document.getElementById('screen-game').classList.remove('active');
     document.getElementById('screen-veto').classList.add('active');
 };
-
-// Funktion: Ein Veto für eine bestimmte Challenge abgeben
-window.castVeto = function(playerKey, challengeKey) {
-    const vetoRef = ref(db, `games/${gameId}/players/${playerKey}/challengesDone/${challengeKey}/vetos/${myPlayerKey}`);
-    set(vetoRef, true); // Markiert, dass du ein Veto gegeben hast
-};
-
-.howto-content {
-    text-align: left;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-.howto-content ul { padding-left: 20px; }
