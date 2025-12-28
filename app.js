@@ -1,19 +1,25 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// DEINE FIREBASE KONFIGURATION HIER EINFÜGEN
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "DEIN_API_KEY",
-  authDomain: "DEIN_PROJEKT.firebaseapp.com",
-  databaseURL: "https://DEIN_PROJEKT-default-rtdb.firebaseio.com",
-  projectId: "DEIN_PROJEKT",
-  storageBucket: "DEIN_PROJEKT.appspot.com",
-  messagingSenderId: "ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyC4xxMq4__FZbbWm1hD7af21GBnWB4PRVE",
+  authDomain: "database-51873.firebaseapp.com",
+  databaseURL: "https://database-51873-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "database-51873",
+  storageBucket: "database-51873.firebasestorage.app",
+  messagingSenderId: "955956842074",
+  appId: "1:955956842074:web:3d4ca84bbb77f98e3ad263",
+  measurementId: "G-EQ9GTVBNJJ"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const analytics = getAnalytics(app);
 
 let gameId = "room123"; // Für den Prototyp fest, später dynamisch per URL
 let myPlayerKey = "";
